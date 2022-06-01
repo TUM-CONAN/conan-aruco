@@ -7,7 +7,7 @@ required_conan_version = ">=1.36.0"
 
 class ArucoConan(ConanFile):
     name = "aruco"
-    _version = "3.1.12"
+    _version = "3.1.15"
     _revision = ""
     version = _version + _revision
 
@@ -54,7 +54,7 @@ class ArucoConan(ConanFile):
         self.requires("eigen/3.3.9-r1@camposs/stable")
 
     def source(self):
-        tools.get("https://downloads.sourceforge.net/project/aruco/{0}/aruco-{0}.zip".format(self.version),
+        tools.get("https://downloads.sourceforge.net/project/aruco/{0}/{0}.zip".format(self.version),
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
