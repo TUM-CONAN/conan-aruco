@@ -7,9 +7,13 @@ required_conan_version = ">=1.36.0"
 
 class ArucoConan(ConanFile):
     name = "aruco"
+    _version = "3.1.12"
+    _revision = ""
+    version = _version + _revision
+    
     description = "Augmented reality library based on OpenCV "
     topics = ("aruco", "augmented reality")
-    url = "https://github.com/conan-io/conan-center-index"
+    url = "https://github.com/TUM-CONAN/conan-aruco"
     homepage = "https://www.uco.es/investiga/grupos/ava/node/26"
     license = "GPL-3.0-only"
 
@@ -43,11 +47,11 @@ class ArucoConan(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
-        self.requires("opencv/4.5.5")
-        self.requires("eigen/3.4.0")
+        self.requires("opencv/4.5.0@camposs/stable")
+        self.requires("eigen/3.3.9@camposs/stable")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
+        tools.get("https://downloads.sourceforge.net/project/aruco/{0}/aruco-{0}.zip".format(self.version),
                   destination=self._source_subfolder, strip_root=True)
 
     @functools.lru_cache(1)
