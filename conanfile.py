@@ -10,7 +10,7 @@ class ArucoConan(ConanFile):
     _version = "3.1.12"
     _revision = ""
     version = _version + _revision
-    
+
     description = "Augmented reality library based on OpenCV "
     topics = ("aruco", "augmented reality")
     url = "https://github.com/TUM-CONAN/conan-aruco"
@@ -47,7 +47,7 @@ class ArucoConan(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
-        self.requires("opencv/4.5.0@camposs/stable")
+        self.requires("opencv/4.5.1@camposs/stable")
         self.requires("eigen/3.3.9@camposs/stable")
 
     def source(self):
@@ -64,7 +64,7 @@ class ArucoConan(ConanFile):
         cmake.definitions["BUILD_DEBPACKAGE"] = False
         cmake.definitions["BUILD_SVM"] = False
         cmake.definitions["INSTALL_DOC"] = False
-        cmake.definitions["USE_OWN_EIGEN3"] = False
+        cmake.definitions["USE_OWN_EIGEN3"] = True
         cmake.configure(build_folder=self._build_subfolder)
         return cmake
 
