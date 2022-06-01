@@ -23,7 +23,7 @@ class ArucoConan(ConanFile):
         "fPIC": [False, True],
     }
     default_options = {
-        "shared": False,
+        "shared": True,
         "fPIC": True,
     }
 
@@ -46,9 +46,12 @@ class ArucoConan(ConanFile):
         if self.options.shared:
             del self.options.fPIC
 
+        if self.options.shared:
+            self.options['opencv'].shared = True
+
     def requirements(self):
         self.requires("opencv/4.5.1@camposs/stable")
-        self.requires("eigen/3.3.9@camposs/stable")
+        self.requires("eigen/3.3.9-r1@camposs/stable")
 
     def source(self):
         tools.get("https://downloads.sourceforge.net/project/aruco/{0}/aruco-{0}.zip".format(self.version),
@@ -68,7 +71,16 @@ class ArucoConan(ConanFile):
         cmake.configure(build_folder=self._build_subfolder)
         return cmake
 
+    def _patch_for_opencv45(self):
+        tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "findDependencies.cmake"), 
+            """find_package(OpenCV REQUIRED)
+include_directories( ${OpenCV_INCLUDE_DIRS} )""",
+            """set(OpenCV_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_OPENCV}/opencv4")
+include_directories( ${OpenCV_INCLUDE_DIRS} )""")
+
+
     def build(self):
+        self._patch_for_opencv45()
         cmake = self._configure_cmake()
         cmake.build()
 

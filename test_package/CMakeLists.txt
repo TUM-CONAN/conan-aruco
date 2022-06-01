@@ -7,6 +7,8 @@ conan_basic_setup(TARGETS)
 
 find_package(aruco REQUIRED CONFIG)
 
+include_directories( "${CONAN_INCLUDE_DIRS_OPENCV}/opencv4" )
+
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} aruco::aruco)
+target_link_libraries(${PROJECT_NAME} aruco::aruco CONAN_PKG::opencv)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
