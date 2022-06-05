@@ -50,8 +50,8 @@ class ArucoConan(ConanFile):
             self.options['opencv'].shared = True
 
     def requirements(self):
-        self.requires("opencv/4.5.1@camposs/stable")
-        self.requires("eigen/3.3.9-r1@camposs/stable")
+        self.requires("opencv/4.5.0@camposs/stable")
+        self.requires("eigen/3.3.9@camposs/stable")
 
     def source(self):
         tools.get("https://downloads.sourceforge.net/project/aruco/{0}/{0}.zip".format(self.version),
