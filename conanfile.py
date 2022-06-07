@@ -27,7 +27,7 @@ class ArucoConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    exports_sources = "CMakeLists.txt", "patches/*"
     generators = "cmake", "cmake_find_package"
 
     @property
@@ -79,7 +79,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )""",
 include_directories( ${OpenCV_INCLUDE_DIRS} )""")
 
     def _patch_fractal_detector(self):
-       tools.patch(base_path=self.source_subfolder, patch_file='patches/000-patch-fractaldetector.diff')
+       tools.patch(base_path=self._source_subfolder, patch_file='patches/000-patch-fractaldetector.diff', strip=1)
 
     def build(self):
         self._patch_fractal_detector()
