@@ -1,0 +1,94 @@
+diff -ru aruco_3.1.15/src/fractaldetector.cpp aruco_3.1.15_patched/src/fractaldetector.cpp
+--- aruco_3.1.15/src/fractaldetector.cpp	2022-02-18 15:55:53.000000000 +0100
++++ aruco_3.1.15_patched/src/fractaldetector.cpp	2022-06-07 13:30:42.660587661 +0200
+@@ -85,6 +85,39 @@
+         }
+     }
+ 
++    std::vector<cv::Point2f> FractalDetector::getPoints2d(cv::Mat &img){
++        if(Markers.size() > 0)
++        {
++            std::map<int, FractalMarker> id_fmarker = _fractalLabeler->_fractalMarkerSet.fractalMarkerCollection;
++
++            std::vector<cv::Point2f> inners;
++            std::map<int, std::vector<cv::Point3f>> id_innerCorners = _fractalLabeler->_fractalMarkerSet.getInnerCorners();
++            for(auto id_innerC:id_innerCorners)
++            {
++                std::vector<cv::Point3f> inner3d;
++                for(auto pt:id_innerC.second)
++                    inners.push_back(cv::Point2f(pt.x,pt.y));
++            }
++
++            std::vector<cv::Point2f> points3d;
++            std::vector<cv::Point2f> points2d;
++            for(auto m:Markers)
++            {
++                for(auto p:id_fmarker[m.id].points)
++                    points3d.push_back(cv::Point2f(p.x, p.y));
++
++                for(auto p:m)
++                    points2d.push_back(p);
++            }
++
++            cv::Mat H = cv::findHomography(points3d, points2d);
++            std::vector<cv::Point2f> dstPnt;
++            cv::perspectiveTransform(inners, dstPnt, H);
++            return dstPnt;
++        }
++        return std::vector<cv::Point2f>();
++    }
++
+     void FractalDetector::draw3d(cv::Mat &img, bool cube, bool axis){
+         if(Tracker.isPoseValid())
+         {
+@@ -125,6 +158,31 @@
+         }
+     }
+ 
++    std::vector<cv::Point3f> FractalDetector::getPoints3d(cv::Mat &img){
++        if(Tracker.isPoseValid())
++        {
++            cv::Mat rot;
++            cv::Rodrigues(Tracker.getRvec(), rot);
++
++            std::vector<cv::Point3f> innerPoints3d;
++            for(auto pt:Tracker.getInner3d())
++            {
++                cv::Mat_<double> src(3,1,rot.type());
++                src(0,0)=pt.x; src(1,0)=pt.y; src(2,0)=pt.z;
++
++                cv::Mat  cam_image_point = rot * src + Tracker.getTvec();
++                cam_image_point = cam_image_point/cv::norm(cam_image_point);
++
++                if(cam_image_point.at<double>(2,0)>0.85)
++                    innerPoints3d.push_back(pt);
++            }
++            return innerPoints3d;
++        } else {
++            std::cout<<"Pose is not valid!" <<std::endl;
++            return std::vector<cv::Point3f>();
++        }
++    }
++
+     void FractalDetector::draw3dCube(cv::Mat& Image, FractalMarker m, const CameraParameters& CP, int lineSize)
+     {
+         cv::Mat objectPoints(8, 3, CV_32FC1);
+diff -ru aruco_3.1.15/src/fractaldetector.h aruco_3.1.15_patched/src/fractaldetector.h
+--- aruco_3.1.15/src/fractaldetector.h	2022-02-18 15:55:53.000000000 +0100
++++ aruco_3.1.15_patched/src/fractaldetector.h	2022-06-07 13:30:04.649282446 +0200
+@@ -98,9 +98,15 @@
+         // draw inner corners of markers
+         void draw2d(cv::Mat &img);
+ 
++        // extract 2d points from tracker
++        std::vector<cv::Point2f> getPoints2d(cv::Mat &img);
++
+         // draw pose estimation axes
+         void draw3d(cv::Mat &img, bool cube=true, bool axis=true);
+ 
++        // extract 3d points from tracker
++        std::vector<cv::Point3f> getPoints3d(cv::Mat &img);
++
+         // draw marker as cube
+         void draw3dCube(cv::Mat& Image, FractalMarker m, const CameraParameters& CP, int lineSize);
+ 

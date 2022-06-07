@@ -78,8 +78,11 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )""",
             """set(OpenCV_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_OPENCV}/opencv4")
 include_directories( ${OpenCV_INCLUDE_DIRS} )""")
 
+    def _patch_fractal_detector(self):
+       tools.patch(base_path=self.source_subfolder, patch_file='patches/000-patch-fractaldetector.diff')
 
     def build(self):
+        self._patch_fractal_detector()
         self._patch_for_opencv45()
         cmake = self._configure_cmake()
         cmake.build()
