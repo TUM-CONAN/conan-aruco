@@ -1,14 +1,12 @@
+cmake_minimum_required(VERSION 3.15)
+cmake_policy(SET CMP0074 NEW)
 
-cmake_minimum_required(VERSION 3.8)
-project(test_package)
-
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
+project(test_package LANGUAGES CXX)
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 find_package(aruco REQUIRED CONFIG)
-
-include_directories( "${CONAN_INCLUDE_DIRS_OPENCV}/opencv4" )
+find_package(OpenCV REQUIRED MODULE)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} aruco::aruco CONAN_PKG::opencv)
+target_link_libraries(${PROJECT_NAME} PRIVATE aruco::aruco opencv::opencv)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
