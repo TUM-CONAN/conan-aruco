@@ -102,5 +102,3 @@ class ArucoConan(ConanFile):
     def _patch_fractal_detector(self):
         patch(self, base_path=self.source_folder,
               patch_file=os.path.join(self.recipe_folder, "patches", "000-patch-fractaldetector.diff"), strip=1)
-
-
