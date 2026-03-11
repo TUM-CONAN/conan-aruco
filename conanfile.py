@@ -43,7 +43,8 @@ class ArucoConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("opencv/4.5.5@camposs/stable")
+        self.requires("zlib/1.3@camposs/stable", override=True)
+        self.requires("opencv/4.8.0@camposs/stable")
         self.requires("eigen/3.4.0")
 
     def source(self):
@@ -64,6 +65,7 @@ class ArucoConan(ConanFile):
         deps.generate()
 
     def build(self):
+        self._patch_legacy_opencv_includes()
         self._patch_fractal_detector()
         cmake = CMake(self)
         cmake.configure()
@@ -86,9 +88,19 @@ class ArucoConan(ConanFile):
             """find_package(OpenCV REQUIRED)\ninclude_directories( ${OpenCV_INCLUDE_DIRS} )""",
             """set(OpenCV_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_OPENCV}/opencv4")\ninclude_directories( ${OpenCV_INCLUDE_DIRS} )""")
 
+    def _patch_legacy_opencv_includes(self):
+        for root, _, files in os.walk(self.source_folder):
+            for filename in files:
+                if not filename.endswith((".h", ".hpp", ".c", ".cc", ".cpp")):
+                    continue
+                filepath = os.path.join(root, filename)
+                replace_in_file(self, filepath, "opencv2/core/core.hpp", "opencv2/core.hpp", strict=False)
+                replace_in_file(self, filepath, "opencv2/imgproc/imgproc.hpp", "opencv2/imgproc.hpp", strict=False)
+                replace_in_file(self, filepath, "opencv2/calib3d/calib3d.hpp", "opencv2/calib3d.hpp", strict=False)
+                replace_in_file(self, filepath, "opencv2/highgui/highgui.hpp", "opencv2/highgui.hpp", strict=False)
+
     def _patch_fractal_detector(self):
         patch(self, base_path=self.source_folder,
               patch_file=os.path.join(self.recipe_folder, "patches", "000-patch-fractaldetector.diff"), strip=1)
-
 
 
