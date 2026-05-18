@@ -44,7 +44,7 @@ class ArucoConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/1.3@camposs/stable", override=True)
-        self.requires("opencv/4.8.0@camposs/stable")
+        self.requires("opencv/4.13.0")
         self.requires("eigen/3.4.0")
 
     def source(self):
